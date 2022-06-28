@@ -1,0 +1,32 @@
+{% load common_helpers %}
+<div class="row">
+    <div class="callout panel radius grid-x">
+	<div class="cell small-10">
+		<h3><a href="{% url 'forumapp:comment' channel=listing.channel.channel_name thread=listing.thread_id %}">{{ listing.thread_name }}</a></h3>
+      		{{ listing.description }}
+	</div>
+	<div class="cell small-1">
+		Owned by: {% include 'forumapp/user_listing.html' %}
+	</div>
+	<div class="cell small-1">
+	    {% if request.user.is_staff or view.kwargs|is_moderator:request.user %}
+	    <form action="#" method="post">
+		{% csrf_token %}
+		    <input type="hidden" value="{{ listing.thread_id }}" name="thread_id">
+		    {% if not request.user.is_staff %}
+			    {% if not listing.pin_date %}
+				<input type="submit" class="primary button radius" value="Pin" name="pin" style="width:100%;">
+			    {% else %}
+				<input type="submit" class="secondary button radius" value="Unpin" name="unpin" style="width:100%;">
+			    {% endif %}
+		    {% endif %}
+		    <input type="submit" class="alert button float-right radius" value="Delete" name="delete_thread" style="width:100%;">
+
+	    </form>
+	    {% elif listing.pin_date %}
+		<p style="text-align: center;">Pinned</p>
+	    {% endif %}
+	</div>
+
+    </div>
+</div>

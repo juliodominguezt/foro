@@ -1,0 +1,125 @@
+{% extends 'base.html' %}
+{% load user_helpers %}
+{% block content %}
+
+
+{% if request.user != object %}
+<div class="clearfix grid-x">
+	{% if request.user != object and request.user.is_staff %}
+		<div class="cell small-2">
+		<form action="#" method="post">
+			{% csrf_token %}
+			{% if object.is_active %}
+			<input type="submit" class="alert button radius" value="Ban this user" name="admin_ban" style="width: 100%;">
+			{% else %}
+			<input type="submit" class="success button radius" value="Unban this user" name="admin_unban" style="width: 100%;">
+			{% endif %}
+		</form>
+		</div>
+	{% endif %}
+	{% if request.user|get_owned_channels_not_moderated_by_user:object %}
+	<button type="button" class="warning button radius" data-open="promoteMod">Promote to moderator</button>
+	{% endif %}
+	{% if request.user|get_owned_channels_moderated_by_user:object %}
+	<button type="button" class="warning button radius" data-open="demoteMod">Demote moderator</button>
+	{% endif %}
+	{% if request.user|get_moderated_channels_only_banned:object %}
+	<button type="button" class="warning button radius" data-open="channelUnban">Unban from a channel</button>
+	{% endif %}
+	{% if request.user|get_moderated_channels_minus_banned:object %}
+	<button type="button" class="warning button radius" data-open="channelBan">Ban from a channel</button>
+	{% endif %}
+</div>
+{% else %}
+	</br>
+{% endif %}
+
+{% include "forumapp/messages.html" %}
+
+<div class="callout panel grid-y">
+	<h2>{{ object.get_username }}'s profile</h2>
+	<p>{{ object|get_bio }}</p>
+	<p>Last login: {{ object.last_login }}</p>
+</div>
+
+{% if request.user != object %}
+	{% if request.user|get_owned_channels %}
+		<div class="reveal" id="promoteMod" data-reveal>
+			<h3>Promote user to moderator of a channel</h3>
+			<form action="#" method="post">
+				{% csrf_token %}
+
+				<label for="channel_name">Choose a channel:</label>
+				<select name="channel_name" id="channel_name">
+
+				{% for channel in request.user|get_owned_channels_not_moderated_by_user:object %}
+					<option value="{{ channel }}">{{ channel }}</option>
+				{% endfor %}
+				</select>
+				<button type="submit" class="warning button radius" name="promote_mod">Promote</button>
+			</form>
+			<button class="close-button" data-close aria-label="Close modal" type="button">
+				<span aria-hidden="true">&times;</span>
+			</button>
+		</div>
+		<div class="reveal" id="demoteMod" data-reveal>
+			<h3>Demote moderator of channel</h3>
+			<form action="#" method="post">
+				{% csrf_token %}
+
+				<label for="channel_name">Choose a channel:</label>
+				<select name="channel_name" id="channel_name">
+
+				{% for channel in request.user|get_owned_channels_moderated_by_user:object %}
+					<option value="{{ channel }}">{{ channel }}</option>
+				{% endfor %}
+				</select>
+				<button type="submit" class="warning button radius" name="demote_mod">Demote</button>
+			</form>
+			<button class="close-button" data-close aria-label="Close modal" type="button">
+				<span aria-hidden="true">&times;</span>
+			</button>
+		</div>
+	{% endif %}
+	{% if request.user|get_moderated_channels_minus_banned:object %}
+		<div class="reveal" id="channelBan" data-reveal>
+			<h3>Ban user from a channel</h3>
+			<form action="#" method="post">
+				{% csrf_token %}
+
+				<label for="channel_name">Choose a channel:</label>
+				<select name="channel_name" id="channel_name">
+
+				{% for channel in request.user|get_moderated_channels_minus_banned:object %}
+					<option value="{{ channel }}">{{ channel }}</option>
+				{% endfor %}
+				</select>
+				<button type="submit" class="alert button radius" name="channel_ban">Ban</button>
+			</form>
+			<button class="close-button" data-close aria-label="Close modal" type="button">
+				<span aria-hidden="true">&times;</span>
+			</button>
+		</div>
+	{% endif %}
+	{% if request.user|get_moderated_channels_only_banned:object %}
+		<div class="reveal" id="channelUnban" data-reveal>
+			<h3>Unban user from a channel?</h3>
+			<form action="#" method="post">
+				{% csrf_token %}
+				<label for="channel_name">Choose a channel:</label>
+				<select name="channel_name" id="channel_name">
+
+				{% for channel in request.user|get_moderated_channels_only_banned:object %}
+					<option value="{{ channel }}">{{ channel }}</option>
+				{% endfor %}
+				</select>
+				<button type="submit" class="alert button radius" name="channel_unban">Unban</button>
+			</form>
+			<button class="close-button" data-close aria-label="Close modal" type="button">
+				<span aria-hidden="true">&times;</span>
+			</button>
+		</div>
+	{% endif %}
+{% endif %}
+
+{% endblock %}

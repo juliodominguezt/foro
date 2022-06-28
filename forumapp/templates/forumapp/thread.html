@@ -1,0 +1,62 @@
+{% extends 'base.html' %}
+{% load thread_helpers %}
+{% load common_helpers %}
+{% block content %}
+
+<div class="clearfix">
+
+		<a href="{% url 'forumapp:channel' %}" class="button" name="back">Back to Channels</a>
+
+		{% if view.kwargs|is_owner:request.user or request.user.is_staff %}
+			<a href="{% url 'forumapp:channel_settings' view.kwargs.channel %}" class="button" name="settings">Settings</a>
+		{% endif %}
+
+		{% if view.kwargs|is_owner:request.user or request.user.is_staff %}
+			<button type="button" class="alert button float-right radius" data-open="deleteChannel">
+				Delete this channel
+			</button>
+		{% endif %}
+
+		<button type="button" class="button float-right radius" data-open="newThread">
+			Create a new thread
+		</button>
+
+</div>
+
+<a href="{% url 'forumapp:channel' %}">Forum</a> &gt;
+<a href="{% url 'forumapp:thread' view.kwargs.channel %}">{{ view.kwargs.channel }}</a> &gt; ...<hr>
+
+{% include "forumapp/messages.html" %}
+
+{% if request.user|is_banned_from:view.kwargs.channel %}
+  <p>Sorry, this channel is unavailable.</p>
+{% else %}
+  <h2>{{ view.kwargs.channel }} </h2>
+  <h4>{{ view.kwargs.channel|description }}</h4>
+  {% for listing in thread_list %}
+    {% include "forumapp/thread_listing.html" %}
+  {% empty %}
+    <p>No threads are available.</p>
+  {% endfor %}
+{% endif %}
+
+<div class="reveal" id="newThread" data-reveal>
+	<h3>Create a new thread:</h3>
+	<form action="#" method="post">
+		{% csrf_token %}
+	  	{{ form }}
+		<button type="submit" class="success button float-right radius" name="create">Create Thread</button>
+	</form>
+	<button class="close-button" data-close aria-label="Close modal" type="button">
+		<span aria-hidden="true">&times;</span>
+	</button>
+</div>
+
+<div class="reveal" id="deleteChannel" data-reveal>
+	<h3>Are you sure you want to delete your channel?</h3>
+	<form action="#" method="post">
+		{% csrf_token %}
+		<input type="submit" class="alert button float-right radius" value="Delete this channel" name="delete_channel">
+	</form>
+</div>
+{% endblock %}

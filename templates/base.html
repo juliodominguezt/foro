@@ -1,0 +1,75 @@
+{% load static %}
+<!DOCTYPE html>
+<html class="no-js" lang="en">
+<head>
+  <title>Forum</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/foundation-sites@6.6.3/dist/css/foundation.min.css" integrity="sha256-ogmFxjqiTMnZhxCqVmcqTvjfe1Y/ec4WaRj/aQPvn+I=" crossorigin="anonymous">
+</head>
+<body>
+
+<!--
+  <div class="top-bar">
+    <div class="top-bar-left">
+      <ul class="dropdown menu" data-dropdown-menu>
+        <li class="menu-text"><a href="/forum/">Forum</a></li>
+        <li>
+          <a href="#">One</a>
+          <ul class="menu horizontal">
+            <li><a href="/forum/test/">One</a></li>
+            <li><a href="/forum/testing">Two</a></li>
+            <li><a href="#">Three</a></li>
+          </ul>
+        </li>
+        <li><a href="#">Two</a></li>
+        <li><a href="#">Three</a></li>
+      </ul>
+    </div>
+  </div>
+-->
+
+  <div class="top-bar" style='background: #60b8b8;'>
+    <div class="top-bar-left">
+      <ul class="dropdown menu" data-dropdown-menu style='background: #60b8b8;'>
+        <li class="menu-text">Forum</li>
+        <li><a href="{% url 'forumapp:channel' %}" style='color: #1468a0'>Channels</a></li>
+        <li><a href="{% url 'forumapp:favorites' %}" style='color: #1468a0'>Favorites</a></li>
+        {% if request.user.is_staff %}
+          <li><a href="{% url 'admin:index' %}" style='color: #1468a0'>Administration</a></li>
+        {% endif %}
+      </ul>
+    </div>
+    <div class="top-bar-right">
+      <ul class="menu" style='background: #60b8b8;'>
+        {% if request.user.is_authenticated %}
+          <li class="menu-text">Welcome, {{ request.user.get_username }}</li>
+          <li><a href="{% url 'registration:logout' %}" style='color: #1468a0'>Logout</a></li>
+          <li><a href="{% url 'forumapp:settings' %}" style='color: #1468a0'>Settings</a></li>
+        {% else %}
+          <li class="menu-text">Welcome, guest.</li>
+          <li><a href="{% url 'registration:login' %}" style='color: #1468a0'>Login</a></li>
+          <li><a href="{% url 'registration:signup' %}" style='color: #1468a0'>Sign up</a></li>
+        {% endif %}
+      </ul>
+    </div>
+  </div>
+
+
+  <div class='off-canvas-wrapper' style='word-wrap: break-word;'>
+    <div class='grid-x'>
+      <div class='cell small-10 small-offset-1 col-md-8'>
+        {% block content %}
+        {% endblock %}
+      </div>
+    </div>
+  </div>
+
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/foundation-sites@6.6.3/dist/js/foundation.min.js" integrity="sha256-pRF3zifJRA9jXGv++b06qwtSqX1byFQOLjqa2PTEb2o=" crossorigin="anonymous"></script>
+
+  <script>
+    $(document).foundation();
+  </script>
+
+
+</body>
+</html>
